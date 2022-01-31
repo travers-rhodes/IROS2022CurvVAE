@@ -124,6 +124,8 @@ class PPTVAETrainer(object):
                 print(samp_mean)
                 print(samp_embs)
                 print(samp_cov)
+            if samp_cov.size==1:
+                samp_cov = samp_cov.reshape((1,1))
             samp_points = torch.tensor(np.random.multivariate_normal(mean=samp_mean, cov=samp_cov,size=num_new_samp_points), dtype=self.model.dtype)
          
         if second_deriv_regularizer == 0:
