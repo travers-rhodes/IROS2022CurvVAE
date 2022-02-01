@@ -18,7 +18,8 @@ def curvature_estimate(model, zvalues, tvalues, device, epsilon_scale = 0.001, e
     # resampling is the easy/inefficient fix
     computed_valid_hvalues = False
     while not computed_valid_hvalues:
-        hvalues_raw = torch.normal(torch.zeros(size=zvalues.shape), torch.ones(size=zvalues.shape))   
+        hvalues_raw = torch.normal(torch.zeros(size=zvalues.shape, device=device), 
+                                   torch.ones(size=zvalues.shape, device=device))   
         hvalues_length = torch.sqrt(torch.sum(torch.square(hvalues_raw), axis=1)).reshape(-1,1)  
         hvalues = hvalues_raw/hvalues_length * epsilon_scale
         computed_valid_hvalues = not torch.any(hvalues.isnan())
@@ -44,7 +45,8 @@ def second_deriv_estimate(model, zvalues, tvalues, device, epsilon_scale = 0.001
     # resampling is the easy/inefficient fix
     computed_valid_hvalues = False
     while not computed_valid_hvalues:
-        hvalues_raw = torch.normal(torch.zeros(size=zvalues.shape), torch.ones(size=zvalues.shape))   
+        hvalues_raw = torch.normal(torch.zeros(size=zvalues.shape, device=device), 
+                                   torch.ones(size=zvalues.shape, device=device))   
         hvalues_length = torch.sqrt(torch.sum(torch.square(hvalues_raw), axis=1)).reshape(-1,1)  
         hvalues = hvalues_raw/hvalues_length * epsilon_scale
         computed_valid_hvalues = not torch.any(hvalues.isnan())
@@ -126,21 +128,21 @@ class PPTVAETrainer(object):
                 print(samp_cov)
             if samp_cov.size==1:
                 samp_cov = samp_cov.reshape((1,1))
-            samp_points = torch.tensor(np.random.multivariate_normal(mean=samp_mean, cov=samp_cov,size=num_new_samp_points), dtype=self.model.dtype)
+            samp_points = torch.tensor(np.random.multivariate_normal(mean=samp_mean, cov=samp_cov,size=num_new_samp_points), dtype=self.model.dtype).to(self.device)
          
         if second_deriv_regularizer == 0:
             second_deriv_loss = torch.tensor(0)
         elif num_new_samp_points is None:
             second_deriv_loss = second_deriv_estimate(self.model, noisy_mu, t, self.device, epsilon_scale = epsilon_scale)
         else:
-            second_deriv_loss = second_deriv_estimate(self.model, samp_points[:,:-self.model.passthrough_dim], samp_points[:,-self.model.passthrough_dim:], self.device, epsilon_scale = epsilon_scale)
+            second_deriv_loss = second_deriv_estimate(self.model, samp_points[:,:self.model.latent_dim], samp_points[:,self.model.latent_dim:], self.device, epsilon_scale = epsilon_scale)
         
         if curvature_regularizer == 0:
             curvature_loss = torch.tensor(0)
         elif num_new_samp_points is None:
             curvature_loss = curvature_estimate(self.model, noisy_mu, t, self.device, epsilon_scale = epsilon_scale)
         else:
-            curvature_loss = curvature_estimate(self.model, samp_points[:,:-self.model.passthrough_dim], samp_points[:,-self.model.passthrough_dim:], self.device, epsilon_scale = epsilon_scale)
+            curvature_loss = curvature_estimate(self.model, samp_points[:,:self.model.latent_dim], samp_points[:,self.model.latent_dim:], self.device, epsilon_scale = epsilon_scale)
 
         loss = loss + second_deriv_loss * second_deriv_regularizer + curvature_loss * curvature_regularizer
         
