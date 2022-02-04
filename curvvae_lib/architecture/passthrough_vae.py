@@ -10,6 +10,22 @@ def reparameterize(mu, logvar):
         eps = torch.randn((mu.shape[0], mu.shape[1]), device=mu.device)
         return mu + eps*std
 
+# take in a nn.linear layer and reset its parameters
+# using the standard initialization but then assuming that the 
+# in data _WILL_ be scaled by scaled_in and that we want the
+# output data _TO BE SCALED_ by scaled_out.
+# default params _should_ match default pytorch initialization
+def scale_aware_init(linear_layer, in_scale = 1., out_scale = 1.):
+    # Setting a=sqrt(5) in kaiming_uniform is the same as initializing with
+    # uniform(-1/sqrt(in_features), 1/sqrt(in_features)). For details, see
+    # https://github.com/pytorch/pytorch/issues/57109
+    fan_in, fan_out = torch.nn.init._calculate_fan_in_and_fan_out(linear_layer.weight)
+    weight_bound = 1/math.sqrt(fan_in) * out_scale / in_scale
+    bias_bound = 1/math.sqrt(fan_in) * out_scale
+    with torch.no_grad():
+        linear_layer.weight.uniform_(-weight_bound, weight_bound)
+        linear_layer.bias.uniform_(-bias_bound,bias_bound)
+
 # a Passthrough VAE is a vae which additionally "passes through" a t parameter
 # (ie: is forced to store, uncorrupted, a "t" variable which is then returned
 # exactly during reconstruction)
@@ -37,7 +53,7 @@ class PassthroughVAE(nn.Module):
 # (and so can be validly set to empty lists)
 class FCPassthroughVAE(PassthroughVAE):
   def __init__(self, input_dim, passthrough_dim, latent_dim, 
-      emb_layer_widths, recon_layer_widths, dtype):
+      emb_layer_widths, recon_layer_widths, dtype, initialization_scale):
     super(FCPassthroughVAE, self).__init__()
     self.input_dim = input_dim
     self.passthrough_dim = passthrough_dim
@@ -45,13 +61,17 @@ class FCPassthroughVAE(PassthroughVAE):
     self.emb_layer_widths = emb_layer_widths
     self.recon_layer_widths = recon_layer_widths
     self.dtype = dtype
-    self.architecture = "fcpassthroughvae" 
+    self.architecture = "fcpassthroughvae"
+    self.initialization_scale = initialization_scale
 
     # initial input has dimension input_dim + passthrough_dim 
     previous_layer_width = self.input_dim + self.passthrough_dim
     self.all_emb_layers = []
-    for w in emb_layer_widths:
-      self.all_emb_layers.append(nn.Linear(previous_layer_width, w)) 
+    for i, w in enumerate(emb_layer_widths):
+      emb_layer = nn.Linear(previous_layer_width, w)
+      if i == 0:
+        scale_aware_init(emb_layer, in_scale = initialization_scale)
+      self.all_emb_layers.append(emb_layer) 
       previous_layer_width = w
 
     self.fcmu = nn.Linear(previous_layer_width, self.latent_dim)
@@ -64,8 +84,11 @@ class FCPassthroughVAE(PassthroughVAE):
     for w in recon_layer_widths:
       self.all_recon_layers.append(nn.Linear(previous_layer_width, w)) 
       previous_layer_width = w
+    
     # add the final layer to get to input_dim (doesn't include passthrough) dimension
-    self.all_recon_layers.append(nn.Linear(previous_layer_width, input_dim))
+    recon_layer = nn.Linear(previous_layer_width, input_dim)
+    scale_aware_init(recon_layer, out_scale = initialization_scale)
+    self.all_recon_layers.append(recon_layer)
 
     # set to double as needed
     # maybe equivalent to self=self.double()?
