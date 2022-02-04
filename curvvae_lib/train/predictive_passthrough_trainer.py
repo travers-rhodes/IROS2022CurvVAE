@@ -89,7 +89,7 @@ class PPTVAETrainer(object):
       # previous step model
       prevmodel = pv.FCPassthroughVAE(self.model.input_dim,
           self.model.passthrough_dim, self.model.latent_dim, self.model.emb_layer_widths,
-          self.model.recon_layer_widths, self.model.dtype, self.model.initialization_scale)
+          self.model.recon_layer_widths, self.model.dtype)
 
 
       # for each chunk of data in an epoch

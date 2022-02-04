@@ -10,8 +10,7 @@ def save_fcpassthrough_vae(vae, model_folder_path):
               "latent_dim": vae.latent_dim,
               "emb_layer_widths": vae.emb_layer_widths,
               "recon_layer_widths": vae.recon_layer_widths,
-              "dtype": vae.dtype,
-              "initialization_scale": vae.initialization_scale
+              "dtype": vae.dtype
              }
     if not os.path.exists(model_folder_path):
         os.makedirs(model_folder_path)
