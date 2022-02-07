@@ -50,10 +50,10 @@ class FCPassthroughVAE(PassthroughVAE):
     # initial input has dimension input_dim + passthrough_dim 
     previous_layer_width = self.input_dim + self.passthrough_dim
     self.all_emb_layers = []
-    self.all_emb_batch_norm_layers = []
+    #self.all_emb_batch_norm_layers = []
     for i, w in enumerate(emb_layer_widths):
       self.all_emb_layers.append(nn.Linear(previous_layer_width, w)) 
-      self.all_emb_batch_norm_layers.append(nn.BatchNorm1d(w,momentum=0.0001)
+      #self.all_emb_batch_norm_layers.append(nn.BatchNorm1d(w,momentum=0.0001)
       previous_layer_width = w
 
     self.fcmu = nn.Linear(previous_layer_width, self.latent_dim)
@@ -63,10 +63,10 @@ class FCPassthroughVAE(PassthroughVAE):
     # the output is of size (input_dim) because autoencoding 
     previous_layer_width = self.latent_dim + self.passthrough_dim
     self.all_recon_layers = []
-    self.all_recon_batch_norm_layers = []
+    #self.all_recon_batch_norm_layers = []
     for w in recon_layer_widths:
       self.all_recon_layers.append(nn.Linear(previous_layer_width, w))
-      self.all_recon_batch_norm_layers.append(nn.BatchNorm1d(w,momentum=0.0001)) 
+      #self.all_recon_batch_norm_layers.append(nn.BatchNorm1d(w,momentum=0.0001)) 
       previous_layer_width = w
     
     # add the final layer to get to input_dim (doesn't include passthrough) dimension
@@ -87,8 +87,8 @@ class FCPassthroughVAE(PassthroughVAE):
     # save layers as ModuleList to record them nicely in module
     self.all_recon_layers = nn.ModuleList(self.all_recon_layers)
     self.all_emb_layers = nn.ModuleList(self.all_emb_layers)
-    self.all_recon_batch_norm_layers = nn.ModuleList(self.all_recon_batch_norm_layers)
-    self.all_emb_batch_norm_layers = nn.ModuleList(self.all_emb_batch_norm_layers)
+    #self.all_recon_batch_norm_layers = nn.ModuleList(self.all_recon_batch_norm_layers)
+    #self.all_emb_batch_norm_layers = nn.ModuleList(self.all_emb_batch_norm_layers)
     
   # x is expected to be a Tensor of the form
   # batchsize x (spatialdims + rotdims)
@@ -106,7 +106,7 @@ class FCPassthroughVAE(PassthroughVAE):
     layer = torch.hstack((x,t))
     for i, fc in enumerate(self.all_emb_layers):
         layer = F.relu(fc(layer))
-        layer = self.all_emb_batch_norm_layers[i](layer)
+        #layer = self.all_emb_batch_norm_layers[i](layer)
     mu = self.fcmu(layer)
     logvar = self.fclogvar(layer)
     return(mu,logvar,t)
@@ -123,5 +123,5 @@ class FCPassthroughVAE(PassthroughVAE):
       # add relu and batch norm on every layer except the last one
       if i != num_fcs-1:
         layer = F.relu(layer)
-        layer = self.all_recon_batch_norm_layers[i](layer)
+        #layer = self.all_recon_batch_norm_layers[i](layer)
     return(layer,t)
