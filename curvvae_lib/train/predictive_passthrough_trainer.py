@@ -129,20 +129,23 @@ class PPTVAETrainer(object):
             if samp_cov.size==1:
                 samp_cov = samp_cov.reshape((1,1))
             samp_points = torch.tensor(np.random.multivariate_normal(mean=samp_mean, cov=samp_cov,size=num_new_samp_points), dtype=self.model.dtype).to(self.device)
+            calc_epsilon_scale = np.sqrt(np.trace(samp_cov)) * epsilon_scale
+        else:
+            calc_epsilon_scale = epsilon_scale
          
         if second_deriv_regularizer == 0:
             second_deriv_loss = torch.tensor(0)
         elif num_new_samp_points is None:
-            second_deriv_loss = second_deriv_estimate(self.model, noisy_mu, t, self.device, epsilon_scale = epsilon_scale)
+            second_deriv_loss = second_deriv_estimate(self.model, noisy_mu, t, self.device, epsilon_scale = calc_epsilon_scale)
         else:
-            second_deriv_loss = second_deriv_estimate(self.model, samp_points[:,:self.model.latent_dim], samp_points[:,self.model.latent_dim:], self.device, epsilon_scale = epsilon_scale)
+            second_deriv_loss = second_deriv_estimate(self.model, samp_points[:,:self.model.latent_dim], samp_points[:,self.model.latent_dim:], self.device, epsilon_scale = calc_epsilon_scale)
         
         if curvature_regularizer == 0:
             curvature_loss = torch.tensor(0)
         elif num_new_samp_points is None:
-            curvature_loss = curvature_estimate(self.model, noisy_mu, t, self.device, epsilon_scale = epsilon_scale)
+            curvature_loss = curvature_estimate(self.model, noisy_mu, t, self.device, epsilon_scale = calc_epsilon_scale)
         else:
-            curvature_loss = curvature_estimate(self.model, samp_points[:,:self.model.latent_dim], samp_points[:,self.model.latent_dim:], self.device, epsilon_scale = epsilon_scale)
+            curvature_loss = curvature_estimate(self.model, samp_points[:,:self.model.latent_dim], samp_points[:,self.model.latent_dim:], self.device, epsilon_scale = calc_epsilon_scale)
 
         loss = loss + second_deriv_loss * second_deriv_regularizer + curvature_loss * curvature_regularizer
         
