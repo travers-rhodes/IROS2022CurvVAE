@@ -10,7 +10,9 @@ import curvvae_lib.architecture.load_model as lm
 
 
 
-loaded_vae = lm.load_model(f"../notebooks/trainedmodels/banana_lat3_curvreg0.001_beta0.001_20220209-120436"
+loaded_vae = lm.load_model(
+f"../notebooks/trainedmodels/banana_lat3_curvreg0.001_beta0.001_20220209-120436"
+#f"../notebooks/trainedmodels/carrot_lat3_curvreg0.001_beta0.001_20220216-113851"
 ,"cpu")
 
 
