@@ -18,3 +18,4 @@ dependencies:
   - statsmodels
   - pip:
     - transforms3d
+    - pyswarms
