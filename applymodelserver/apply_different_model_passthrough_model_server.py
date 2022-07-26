@@ -11,7 +11,7 @@ import curvvae_lib.architecture.load_model as lm
 
 
 loaded_vae = lm.load_model(
-f"../notebooks/trainedmodels/banana_lat3_curvreg0_beta0.001_20220209-144826"
+f"../notebooks/trainedmodels/banana_lat3_curvreg0_beta0.001_20220210-013953"
 ,"cpu")
 
 
