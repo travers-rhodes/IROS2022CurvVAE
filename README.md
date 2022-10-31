@@ -1,6 +1,8 @@
 # Introduction
-The associated machine learning code for the paper "Learning from Demonstration using a Curvature Regularized
+This is the official repository for the machine learning code associated with the paper "Learning from Demonstration using a Curvature Regularized
 Variational Auto-Encoder (CurvVAE)" by Travers Rhodes, Tapomayukh Bhattacharjee, and Daniel D. Lee.
+
+![Training vs. Test Error](/notebooks/TrainingTestError200TrainingPoints.png)
 
 
 # How this code can be used:
@@ -40,11 +42,5 @@ This will train and save a model to a file named something like `notebooks/train
 
 Likewise, you can train a PCA model using `notebooks/(03) Train Pickup Model (PCA).ipynb`
 
-
-## Model application
-To create an HTTP service that can apply models, you can run
-```
-cd applymodelserver
-python3 apply_passthrough_model_server.py
-```
-after modifying `apply_passthrough_model_server.py` to set `loaded_vae = lm.load_model(f"../notebooks/trainedmodels/banana_lat3_curvreg0.001_beta0.001_20220209-120436","cpu")` to point to the name of the model you want to apply.
+## Figure Creation
+The `notebooks` folder also contains code to generate the figures used in the paper.
