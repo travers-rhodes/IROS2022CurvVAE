@@ -23,17 +23,23 @@ you can run:
 cd data
 source download_fork_trajectory_data.sh
 ```
+
+This will download the data recordings to the /data folder (for many types of food, not just banana).
+
 ## Data cleaning
-To clean the data, run the notebook `/notebooks/2022-01-28 IROS2022 Clean Fork Pickup Data.ipynb`
+To clean the data, run the notebook `/notebooks/(01) Code to Clean Fork Pickup Data.ipynb`
 changing the variable `foodname = "carrot"` to `"banana"` or other food item.
 
 This will generate a set of files like `/notebooks/banana_clean_pickups/pickup_attempt0.npy` containing individual attempts to pick up food items, with outlier motions removed.
 
 ## Model Training
-To train a CurvVAE model on the cleaned trajectory data, run the notebook `notebooks/2022-01-28 IROS2022 Train Pickup Model.ipynb`
+To train a CurvVAE model on the cleaned trajectory data, run the notebook `notebooks/(02) Train Pickup Model (BetaVAE or CurvVAE).ipynb`
 changing the variable `foodname = "carrot"` to `"banana"` or other food item.
 
 This will train and save a model to a file named something like `notebooks/trainedmodels/banana_lat3_curvreg0.001_beta0.001_20220209-120436`
+
+Likewise, you can train a PCA model using `notebooks/(03) Train Pickup Model (PCA).ipynb`
+
 
 ## Model application
 To create an HTTP service that can apply models, you can run

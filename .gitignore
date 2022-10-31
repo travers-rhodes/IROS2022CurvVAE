@@ -1,4 +1,9 @@
 data/*/
 scratchwork_not_in_final_paper/pedagogical
+notebooks/pcamodels/
+notebooks/*.png
+notebooks/*.jpeg
+notebooks/trainedmodels/
+notebooks/banana_clean_pickups/
 .ipynb_checkpoints
 *.pyc
