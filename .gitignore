@@ -1,3 +1,4 @@
 data/*/
-notebooks/*/
+scratchwork_not_in_final_paper/pedagogical
+.ipynb_checkpoints
 *.pyc
