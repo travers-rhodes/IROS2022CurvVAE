@@ -44,3 +44,15 @@ Likewise, you can train a PCA model using `notebooks/(03) Train Pickup Model (PC
 
 ## Figure Creation
 The `notebooks` folder also contains code to generate the figures used in the paper.
+
+
+# Bibtex
+If you use this code in your work, please consider citing our paper:
+```
+@inproceedings{curvvae,
+  author={Rhodes, Travers and Bhattacharjee, Tapomayukh and Lee, Daniel D.},
+  booktitle={2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)}, 
+  title={Learning from Demonstration using a Curvature Regularized Variational Auto-Encoder (CurvVAE)}, 
+  year={2022}
+}
+```
